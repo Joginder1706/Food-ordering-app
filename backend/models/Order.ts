@@ -22,7 +22,7 @@ const OrderSchema = new Schema(
         unit: { type: Number, required: true },
       },
     ],
-    totalAmount: {
+    totalAmmount: {
       type: Number,
       required: true,
     },
