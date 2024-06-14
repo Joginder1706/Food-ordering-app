@@ -20,7 +20,7 @@ export const matchedPassword = async (
   return (await GeneratePassword(password, salt)) === hashed;
 };
 
-export const GenerateSignature = (payload: VandorPayload) => {
+export const GenerateSignature = (payload: AuthPayload) => {
   return jwt.sign(payload, APP_SECRET, { expiresIn: "1d" });
 };
 

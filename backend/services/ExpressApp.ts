@@ -9,7 +9,7 @@ export default async (app: Application) => {
 
   app.use("/admin", AdminRouter);
   app.use("/vandor", VandorRouter);
-  app.use("/user",CustomerRouter);
+  app.use("/customer",CustomerRouter);
   app.use(ShoppingRouter);
 
   return app;
