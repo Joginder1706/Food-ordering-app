@@ -5,7 +5,9 @@ import {
   customerLogin,
   customerVerify,
   editCustomerProfile,
+  getAllOrders,
   getCustomerProfile,
+  getOrderById,
   requestOtpNumber,
 } from "../controllers";
 import { Authenticate } from "../middlewares";
@@ -33,12 +35,12 @@ router.get("/profile", getCustomerProfile);
 router.patch("/profile", editCustomerProfile);
 
 /* ----------------------- createOrder --------------------------*/
-router.post("/createorder",createOrder);
+router.post("/createorder", createOrder);
 
 /* -----------------------get all orders --------------------------*/
-router.get("/orders");
+router.get("/orders", getAllOrders);
 
 /* ----------------------- get order by id --------------------------*/
-router.get("/order/:id");
+router.get("/order/:id", getOrderById);
 
 export { router as CustomerRouter };

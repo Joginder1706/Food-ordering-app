@@ -298,3 +298,33 @@ export const createOrder = async (
     return res.status(404).json({ message: "order not created" });
   }
 };
+export const getAllOrders = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const customer = req.user;
+  if (customer) {
+    const orders = await Order.find();
+    if (orders?.length > 0) {
+      return res.status(201).json(orders);
+    }
+    return res.status(404).json({ message: "orders not found" });
+  }
+};
+
+export const getOrderById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const customer = req.user;
+  const id = req.params.id;
+  if (customer) {
+    const order = await Order.findById(id);
+    if (order !== null) {
+      return res.status(201).json(order);
+    }
+    return res.status(404).json({ message: "orders not found" });
+  }
+};
