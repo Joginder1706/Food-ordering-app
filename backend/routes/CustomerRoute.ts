@@ -34,6 +34,12 @@ router.get("/profile", getCustomerProfile);
 /* -----------------------update profile --------------------------*/
 router.patch("/profile", editCustomerProfile);
 
+/* ----------------------- Cart Section --------------------------*/
+router.post("/cart");
+
+router.get("/cart");
+
+router.get("/cart/:id");
 /* ----------------------- createOrder --------------------------*/
 router.post("/createorder", createOrder);
 
