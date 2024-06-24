@@ -294,13 +294,80 @@ export const getCart = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {};
+) => {
+  const customer = req.user;
+  if (customer) {
+    const profile = await Customer.findById(customer._id).populate("cart.food");
+    if (profile) {
+      if (profile.cart.length > 0) {
+        return res.status(201).json(profile.cart);
+      } else {
+        return res.status(400).json({ message: "cart not found" });
+      }
+    }
+  }
+  return res.status(400).json({ message: "cart not found" });
+};
 
 export const getCartById = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {};
+) => {
+  try {
+    const customer = req.user;
+    const id = req.params.id;
+
+    if (customer) {
+      const profile = await Customer.findById(customer._id).populate(
+        "cart.food"
+      );
+      if (profile) {
+        if (profile.cart.length > 0) {
+          for (const ele of profile.cart) {
+            if (ele._id.toString() === id) {
+              return res.status(201).json(ele);
+            }
+          }
+          return res.status(404).json({ message: "Cart item not found" });
+        } else {
+          return res.status(404).json({ message: "Cart is empty" });
+        }
+      }
+    }
+    return res.status(404).json({ message: "Customer not found" });
+  } catch (error) {
+    // Pass the error to the next middleware
+    return res.status(404).json({ message: "Customer not found" });
+  }
+};
+export const deleteCart = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const customer = req.user;
+    const id = req.params.id;
+
+    if (customer) {
+      const profile = await Customer.findById(customer._id).populate(
+        "cart.food"
+      );
+      if (profile != null) {
+        profile.cart = [] as any;
+        const result = await profile.save();
+        return res.status(201).json(result);
+      } else {
+        return res.status(404).json({ message: "customer not exist" });
+      }
+    }
+    return res.status(404).json({ message: "Customer not found" });
+  } catch (error) {
+    // Pass the error to the next middleware
+    return res.status(404).json({ message: "Customer not found" });
+  }
+};
 
 /* ----------------------- order section --------------------------*/
 
@@ -316,6 +383,7 @@ export const createOrder = async (
     const cart = <[OrderInputs]>req.body;
     let cartItems = Array();
     let netAmount = 0.0;
+    let vandorId;
     const foods = await Food.find()
       .where("_id")
       .in(cart.map((item) => item._id))
@@ -324,6 +392,7 @@ export const createOrder = async (
     foods?.map((food) => {
       cart.map(({ _id, unit }) => {
         if (food._id == _id) {
+          vandorId = food.vandorId;
           netAmount += food.price * unit;
           cartItems.push({ food, unit });
         }
@@ -333,18 +402,29 @@ export const createOrder = async (
     if (cartItems) {
       const currentOrder = await Order.create({
         orderId: orderId,
+        vandorId: vandorId,
         items: cartItems,
         totalAmmount: netAmount,
         orderDate: new Date(),
         paidThrough: "cod",
         paymentResponse: "",
         orderStatus: "waiting..",
+        remarks: "",
+        deliveryId: "",
+        appliedOffers: false,
+        offerId: null,
+        readyTime: 45,
       });
 
       if (currentOrder) {
-        profile?.orders.push(currentOrder);
-        await profile?.save();
-        return res.status(201).json(currentOrder);
+        if (profile) {
+          profile.cart = [] as any; // No need to use 'as any' here, assuming cart is of type array
+          profile.orders.push(currentOrder);
+          await profile.save();
+          return res.status(201).json(currentOrder);
+        } else {
+          return res.status(404).json({ message: "Profile not found" });
+        }
       }
     }
     return res.status(404).json({ message: "order not created" });
